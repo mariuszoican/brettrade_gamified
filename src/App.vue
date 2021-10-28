@@ -134,11 +134,15 @@ import SpeechBubble from "./components/SpeechBubble.vue";
 import EndDialog from "./components/EndDialog";
 import ConfirmDialog from "./components/ConfirmDialog";
 import { Chart } from "highcharts-vue";
-import { differenceInSeconds } from "date-fns";
+import { differenceInSeconds, addSeconds, getTime } from "date-fns";
 import gsap from "gsap";
 import _ from "lodash";
 import add from "date-fns/fp/add/index.js";
-const maxPrices = 10;
+
+const maxPrices = 100;
+const startingPrice = 100;
+const tickFrequency = 3;
+
 const formatDown = {
   color: "red",
   icon: "mdi-arrow-down-bold",
@@ -170,7 +174,13 @@ export default {
     SpeechBubble,
   },
   data: function() {
+    const minx = Date.UTC(2009, 0, 1);
+ 
+    const maxx = getTime(addSeconds(new Date, tickFrequency*maxPrices))
+    console.debug(maxx,'jopa')
     return {
+      minx,
+      maxx,
       showHappyFace: false,
       showLastMsg: false,
       particle_type: "fountain",
@@ -207,10 +217,10 @@ export default {
       sensitivity: 5,
       sensitivity2: 3,
       probToZero: 0.001,
-      startingPrice: 100,
-      currentPrice: 100,
+      startingPrice,
+      currentPrice: startingPrice,
       submittable: false,
-      onPause:false,
+      onPause: false,
       startTime: new Date(),
       endTime: null,
       timeSpent: null,
@@ -218,21 +228,25 @@ export default {
       dialog: false,
       tweenedPrice: null,
       stockInterval: null,
-      tickFrequency: 1,
+      tickFrequency,
       chartOptions: {
-        xAxis: {
-          max: maxPrices,
-          ordinal: false,
-        },
-        yAxis: {},
+        time: { useUTC: false },
+        yAxis: {startOnTick: false,
+      endOnTick: false,},
+        xAxis: {startOnTick: false,
+      endOnTick: false,
+      showLastLabel: true,
+          min: getTime(new Date()),
+          max:getTime(addSeconds(new Date, tickFrequency*maxPrices))},
         navigator: { enabled: false },
         rangeSelector: {
+          enabled:false,
           inputEnabled: false,
-          selected: false,
+          selected: 0,
         },
         series: [
           {
-            data: [100],
+            data: [[getTime(new Date()), startingPrice]],
           },
         ],
       },
@@ -252,7 +266,9 @@ export default {
     },
   },
   watch: {
-    dialog(v){this.onPause=v},
+    dialog(v) {
+      this.onPause = v;
+    },
     messages(v) {
       this.showLastMsg = true;
       setTimeout(() => {
@@ -311,7 +327,7 @@ export default {
       if (val) {
         await this.sendMessage({ name: "Trade_ends" });
         this.showEndDialog = true;
-        this.onPause=true;
+        this.onPause = true;
         // document.getElementById("form").submit();
       }
     },
@@ -330,10 +346,11 @@ export default {
     this.messages.push("Hello!");
     this.$nextTick(() => {
       this.$refs.listend.scrollIntoView({ behavior: "smooth" });
-
+      
       this.$refs.priceGraph.chart.setSize(null, window.innerHeight - 100);
       // this.$refs.priceGraph.chart.reflow();
     });
+ 
     this.stockInterval = setInterval(async () => {
       if (!this.onPause) {
         const addendum = _.random(0, 2);
@@ -345,7 +362,12 @@ export default {
         }
         this.addMessage(this.currentPrice, addendum);
         this.prices.push(this.currentPrice);
-        this.chartOptions.series[0].data.push(this.currentPrice);
+        
+        this.chartOptions.series[0].data.push([
+          getTime(new Date()),
+          this.currentPrice,
+        ]);
+        
       }
     }, this.tickFrequency * 1000);
   },
@@ -376,13 +398,12 @@ export default {
     tweenUpd(v) {
       this.tweenedPrice = _.round(this.tweenedPrice, 2);
     },
-     
 
     async sell() {
       await this.sendMessage({ name: "Sell" });
       this.dialog = false;
       this.submittable = true;
-      this.onPause=true;
+      this.onPause = true;
     },
 
     async continueKeeping() {
@@ -393,7 +414,7 @@ export default {
       this.showHappyFace = true;
       setTimeout(() => {
         this.showHappyFace = false;
-        this.onPause=False
+        this.onPause = False;
       }, 2000);
     },
   },
