@@ -15,9 +15,12 @@
     "highcharts": "^9.2.2",
     "highcharts-vue": "^1.4.0",
     "lodash": "^4.17.21",
+    "particles-bg-vue": "^1.3.5",
     "vue": "^2.6.11",
+    "vue-breathing-colors": "^0.0.7",
     "vue-native-websocket": "^2.0.15",
     "vue-round-slider": "^1.0.1",
+    "vue-typical": "1.6.2",
     "vuetify": "^2.4.0"
   },
   "devDependencies": {

@@ -1,5 +1,6 @@
 <template>
   <v-dialog v-model="dialog" max-width="600">
+   
     <v-card>
       <v-card-title class="text-h5">Selling decision</v-card-title>
 

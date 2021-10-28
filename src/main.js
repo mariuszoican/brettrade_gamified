@@ -5,6 +5,12 @@ import Highcharts from "highcharts";
 import Stock from "highcharts/modules/stock";
 import HighchartsVue from "highcharts-vue";
 import VueNativeSock from "vue-native-websocket";
+import BreathingColors from "vue-breathing-colors";
+
+Vue.use(BreathingColors);
+import VueParticlesBg from "particles-bg-vue";
+
+Vue.use(VueParticlesBg);
 
 const ws_scheme = window.location.protocol === "https:" ? "wss" : "ws";
 const ws_path = ws_scheme + "://" + window.location.host + window.socket_path;
