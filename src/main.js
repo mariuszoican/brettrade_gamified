@@ -6,7 +6,7 @@ import Stock from "highcharts/modules/stock";
 import HighchartsVue from "highcharts-vue";
 import VueNativeSock from "vue-native-websocket";
 import BreathingColors from "vue-breathing-colors";
-
+import "animate.css";
 Vue.use(BreathingColors);
 import VueParticlesBg from "particles-bg-vue";
 

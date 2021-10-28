@@ -1,9 +1,36 @@
 <template>
   <v-app app>
+    <v-overlay :value="showHappyFace">
+      <div class="d-flex flex-column align-center justify-center">
+        <img
+          src="https://i.gifer.com/7cIs.gif"
+          alt=""
+          height="300px"
+          width="300px"
+        />
+        <h1>We are so happy to see back!</h1>
+      </div>
+    </v-overlay>
+    <div class="funnyam d-flex flex-column">
+      <transition
+        name="custom-classes-transition"
+        enter-active-class="animate__animated animate__bounceIn"
+        appear
+      >
+        <speech-bubble :text="lastMsg" v-if="showLastMsg"> </speech-bubble>
+      </transition>
+      <img
+        src="https://i.gifer.com/XOsX.gif"
+        alt=""
+        height="100px"
+        width="100px"
+        style="align-self:flex-end"
+      />
+    </div>
     <transition name="fade">
       <particles-bg
         v-if="snackbar"
-        :config='pconfig'
+        :config="pconfig"
         :type="particle_type"
         :bg="false"
         :canvas="{ position: 'absolute', zIndex: 1000, top: 0, left: 0 }"
@@ -15,7 +42,7 @@
         <div class="d-flex align-center  font-weight-bold ">
           Current price:
           <div class="ml-1 pa-2 red   white--text text-no-wrap rounded-pill">
-            ${{ tweenedPrice.toFixed(2) || currentPrice }}
+            ${{ formattedTween || currentPrice }}
           </div>
         </div>
       </v-sheet>
@@ -103,6 +130,7 @@
 import icon from "./assets/icon.js";
 import typical from "vue-typical";
 import { ParticlesBg } from "particles-bg-vue";
+import SpeechBubble from "./components/SpeechBubble.vue";
 import EndDialog from "./components/EndDialog";
 import ConfirmDialog from "./components/ConfirmDialog";
 import { Chart } from "highcharts-vue";
@@ -110,7 +138,7 @@ import { differenceInSeconds } from "date-fns";
 import gsap from "gsap";
 import _ from "lodash";
 import add from "date-fns/fp/add/index.js";
-
+const maxPrices = 10;
 const formatDown = {
   color: "red",
   icon: "mdi-arrow-down-bold",
@@ -139,10 +167,13 @@ export default {
     EndDialog,
     typical,
     ParticlesBg,
+    SpeechBubble,
   },
   data: function() {
     return {
-      particle_type:'fountain',
+      showHappyFace: false,
+      showLastMsg: false,
+      particle_type: "fountain",
       heartConfig: {
         num: [4, 7],
         rps: 0.1,
@@ -169,16 +200,17 @@ export default {
         },
       },
       showEndDialog: false,
-      messages: ["Hello!"],
+      messages: [],
       zeroCounter: 0, //bad, all this is bad. TODO
       grownCounter: 0,
       TwoTwosCounter: 0,
       sensitivity: 5,
       sensitivity2: 3,
-      probToZero: 0.01,
+      probToZero: 0.001,
       startingPrice: 100,
       currentPrice: 100,
       submittable: false,
+      onPause:false,
       startTime: new Date(),
       endTime: null,
       timeSpent: null,
@@ -189,7 +221,7 @@ export default {
       tickFrequency: 1,
       chartOptions: {
         xAxis: {
-          max: 100,
+          max: maxPrices,
           ordinal: false,
         },
         yAxis: {},
@@ -207,20 +239,34 @@ export default {
     };
   },
   computed: {
-    pconfig(){
-      if(this.particle_type == 'fountain') return {}
-      return this.heartConfig
+    lastMsg() {
+      return _.last(this.messages);
+    },
+    pconfig() {
+      if (this.particle_type == "fountain") return {};
+      return this.heartConfig;
     },
     formattedTween() {
-      return this.tweenedPrice.toFixed(2);
+      if (this.tweenedPrice) return this.tweenedPrice.toFixed(2);
+      return this.currentPrice.toFixed(2);
     },
   },
   watch: {
+    dialog(v){this.onPause=v},
+    messages(v) {
+      this.showLastMsg = true;
+      setTimeout(() => {
+        this.showLastMsg = false;
+      }, 3000);
+    },
     prices(v) {
       if (v.length % 10 === 0) {
         this.messages.push(
           `You keep doing this ALREADY for ${v.length} price updates! That's the spirit!`
         );
+      }
+      if (v.length >= maxPrices) {
+        this.submittable = true;
       }
     },
     zeroCounter(v) {
@@ -248,18 +294,16 @@ export default {
     TwoTwosCounter(v) {
       if (v === this.sensitivity2) {
         const msg = `That's insane! ${
-            numToStr[this.sensitivity2]
-          } 2s in a row! You gonna be rich!`
-        this.snackbartext = msg
-        this.particle_type='custom'
+          numToStr[this.sensitivity2]
+        } 2s in a row! You gonna be rich!`;
+        this.snackbartext = msg;
+        this.particle_type = "custom";
         this.snackbar = true;
         setTimeout(() => {
           this.snackbar = false;
-          this.particle_type='fountain'
+          this.particle_type = "fountain";
         }, 3000);
-        this.messages.push(
-          msg
-        );
+        this.messages.push(msg);
         this.TwoTwosCounter = 0;
       }
     },
@@ -267,29 +311,31 @@ export default {
       if (val) {
         await this.sendMessage({ name: "Trade_ends" });
         this.showEndDialog = true;
+        this.onPause=true;
         // document.getElementById("form").submit();
       }
     },
     currentPrice: function(newValue) {
       this.$refs.listend.scrollIntoView({ behavior: "smooth" });
-      
+
       gsap.to(this.$data, {
         duration: 0.5,
-        tweenedPrice: newValue.toFixed(2),
+        tweenedPrice: newValue,
         onUpdate: this.tweenUpd,
       });
     },
   },
   async created() {},
   async mounted() {
+    this.messages.push("Hello!");
     this.$nextTick(() => {
       this.$refs.listend.scrollIntoView({ behavior: "smooth" });
 
-      this.$refs.priceGraph.chart.setSize(null, window.innerHeight - 150);
+      this.$refs.priceGraph.chart.setSize(null, window.innerHeight - 100);
       // this.$refs.priceGraph.chart.reflow();
     });
     this.stockInterval = setInterval(async () => {
-      if (!this.dialog && !this.submittable) {
+      if (!this.onPause) {
         const addendum = _.random(0, 2);
         this.currentPrice += addendum;
         const r = _.random(0, 1, true);
@@ -313,12 +359,12 @@ export default {
         const msg = `Game ends!`;
         this.messages.push(msg);
       }
-      if (addendum === 0 && !this.dialog && !this.submittable) {
+      if (addendum === 0 && !this.onPause) {
         this.zeroCounter++;
         this.TwoTwosCounter = 0;
         this.grownCounter = 0;
       }
-      if (addendum > 0 && !this.dialog && !this.submittable) {
+      if (addendum > 0 && !this.onPause) {
         this.zeroCounter = 0;
         this.grownCounter++;
         if (addendum == 2) {
@@ -330,20 +376,25 @@ export default {
     tweenUpd(v) {
       this.tweenedPrice = _.round(this.tweenedPrice, 2);
     },
-    innerShowDialog() {
-      this.dialog = true;
-    },
+     
 
     async sell() {
       await this.sendMessage({ name: "Sell" });
       this.dialog = false;
       this.submittable = true;
+      this.onPause=true;
     },
 
     async continueKeeping() {
       await this.sendMessage({ name: "continueKeeping" });
       this.dialog = false;
       this.submittable = false;
+
+      this.showHappyFace = true;
+      setTimeout(() => {
+        this.showHappyFace = false;
+        this.onPause=False
+      }, 2000);
     },
   },
 };
@@ -406,5 +457,11 @@ export default {
 }
 .fade-enter, .fade-leave-to /* .fade-leave-active below version 2.1.8 */ {
   opacity: 0;
+}
+.funnyam {
+  position: fixed;
+  z-index: 1000;
+  bottom: 10px;
+  right: 10px;
 }
 </style>
