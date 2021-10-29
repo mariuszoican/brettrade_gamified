@@ -20,10 +20,10 @@
         <speech-bubble :text="lastMsg" v-if="showLastMsg"> </speech-bubble>
       </transition>
       <img
-        src="https://i.gifer.com/XOsX.gif"
+        src="https://www.picgifs.com/graphics/s/scrooge-mcduck/graphics-scrooge-mcduck-940725.gif"
         alt=""
-        height="100px"
-        width="100px"
+        height="150px"
+        width="150px"
         style="align-self:flex-end"
       />
     </div>
@@ -41,8 +41,19 @@
       <v-sheet outlined class="d-flex align-center ml-1 pa-2 rounded-xl">
         <div class="d-flex align-center  font-weight-bold ">
           Current price:
-          <div class="ml-1 pa-2 red   white--text text-no-wrap rounded-pill">
+          <div class="ml-1 pa-2 blue   white--text text-no-wrap rounded-pill">
             ${{ formattedTween || currentPrice }}
+          </div>
+        </div>
+      </v-sheet>
+
+      <v-spacer></v-spacer>
+
+      <v-sheet outlined class="d-flex align-center ml-1 pa-2 rounded-xl">
+        <div class="d-flex align-center  font-weight-bold ">
+          Crash probability (each period):
+          <div class="ml-1 pa-2 red   white--text text-no-wrap rounded-pill">
+            {{ 100*probToZero }}%
           </div>
         </div>
       </v-sheet>
@@ -216,7 +227,7 @@ export default {
       TwoTwosCounter: 0,
       sensitivity: 5,
       sensitivity2: 3,
-      probToZero: 0.001,
+      probToZero: 0.03,
       startingPrice,
       currentPrice: startingPrice,
       submittable: false,
@@ -278,7 +289,7 @@ export default {
     prices(v) {
       if (v.length % 10 === 0) {
         this.messages.push(
-          `You keep doing this ALREADY for ${v.length} price updates! That's the spirit!`
+          `You are holding strong for ${v.length} ticks already! That's the spirit!`
         );
       }
       if (v.length >= maxPrices) {
@@ -295,11 +306,11 @@ export default {
       if (v === this.sensitivity) {
         const msg = `Wow! ${
           numToStr[this.sensitivity]
-        } straight price growths in a row! To the sky!`;
+        } straight price growths in a row! To the moon!`;
         this.messages.push(msg);
         this.snackbartext = `Wow! ${
           numToStr[this.sensitivity]
-        } straight price growths in a row! To the sky!`;
+        } straight price growths in a row! To the moon!`;
         this.snackbar = true;
         setTimeout(() => {
           this.snackbar = false;
@@ -343,7 +354,7 @@ export default {
   },
   async created() {},
   async mounted() {
-    this.messages.push("Hello!");
+    this.messages.push("Hello! Ready to invest?");
     this.$nextTick(() => {
       this.$refs.listend.scrollIntoView({ behavior: "smooth" });
       
@@ -378,7 +389,7 @@ export default {
     addMessage(price, addendum) {
       // bad structure. let's think about it later
       if (price === 0) {
-        const msg = `Game ends!`;
+        const msg = `The market crashed!`;
         this.messages.push(msg);
       }
       if (addendum === 0 && !this.onPause) {
