@@ -3,10 +3,10 @@
     <v-overlay :value="showHappyFace">
       <div class="d-flex flex-column align-center justify-center">
         <img
-          src="https://i.gifer.com/7cIs.gif"
+          src="https://i.gifer.com/Llx5.gif"
           alt=""
           height="300px"
-          width="300px"
+          width="600px"
         />
         <h1>We are so happy to see back!</h1>
       </div>
@@ -51,7 +51,7 @@
 
       <v-sheet outlined class="d-flex align-center ml-1 pa-2 rounded-xl">
         <div class="d-flex align-center  font-weight-bold ">
-          Crash probability (each period):
+          Crash probability (for each price update):
           <div class="ml-1 pa-2 red   white--text text-no-wrap rounded-pill">
             {{ 100*probToZero }}%
           </div>
@@ -150,7 +150,7 @@ import gsap from "gsap";
 import _ from "lodash";
 import add from "date-fns/fp/add/index.js";
 
-const maxPrices = 100;
+const maxPrices = 25;
 const startingPrice = 100;
 const tickFrequency = 3;
 
@@ -287,9 +287,25 @@ export default {
       }, 3000);
     },
     prices(v) {
-      if (v.length % 10 === 0) {
+      if (v.length == 5) {
         this.messages.push(
-          `You are holding strong for ${v.length} ticks already! That's the spirit!`
+          `Diamond hands 💎🤲: \nHolding strong for ${v.length*this.tickFrequency} seconds already!`
+        );
+        this.messages.push(gif1);
+      }
+      if (v.length == 10) {
+        this.messages.push(
+          `To the moon 🚀: \nStock is going up for ${v.length*this.tickFrequency} seconds.`
+        );
+      }
+      if (v.length == 15) {
+        this.messages.push(
+          `Gimme the tendies! 🍗: \nCash piling up for ${v.length*this.tickFrequency} seconds now.`
+        );
+      }
+      if (v.length == 20) {
+        this.messages.push(
+          `Almost there 🚀🚀🚀🚀: \nImpressive run for ${v.length*this.tickFrequency} seconds.`
         );
       }
       if (v.length >= maxPrices) {
@@ -354,7 +370,7 @@ export default {
   },
   async created() {},
   async mounted() {
-    this.messages.push("Hello! Ready to invest?");
+    this.messages.push("Hello! Ready to invest? 📈 ");
     this.$nextTick(() => {
       this.$refs.listend.scrollIntoView({ behavior: "smooth" });
       
@@ -389,7 +405,7 @@ export default {
     addMessage(price, addendum) {
       // bad structure. let's think about it later
       if (price === 0) {
-        const msg = `The market crashed!`;
+        const msg = `Market crashed! 😢`;
         this.messages.push(msg);
       }
       if (addendum === 0 && !this.onPause) {
@@ -426,7 +442,7 @@ export default {
       setTimeout(() => {
         this.showHappyFace = false;
         this.onPause = False;
-      }, 2000);
+      }, 3000);
     },
   },
 };
