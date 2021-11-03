@@ -1,5 +1,35 @@
 <template>
   <v-app app>
+    <transition
+      enter-active-class="animate__animated animate__bounce animate__slow"
+      leave-active-class="animate__animated animate__fadeOutTopRight animate__slow"
+    >
+      <v-overlay
+        :value="isAwardGiven"
+        v-if="isAwardGiven"
+        :dark="false"
+        :opacity="0"
+        z-index="10000"
+      >
+        <div class="d-flex flex-column justify-center align-center">
+          <v-img
+            contain
+            max-height="300"
+            max-width="300"
+            :src="awardJustGiven.img"
+          ></v-img>
+
+          <v-card elevation="3">
+            <v-card-title class="d-flex align-center justify-center text-center"
+              ><div>{{ awardJustGiven.name }}</div></v-card-title
+            >
+            <v-card-text>
+              {{ awardJustGiven.desc }}
+            </v-card-text>
+          </v-card>
+        </div>
+      </v-overlay>
+    </transition>
     <v-overlay :value="showHappyFace">
       <div class="d-flex flex-column align-center justify-center">
         <img
@@ -37,7 +67,7 @@
       />
     </transition>
     <input type="hidden" :value="currentPrice" name="exit_price" />
-    <v-app-bar app clipped-left>
+    <v-app-bar app clipped-left height="100">
       <v-sheet outlined class="d-flex align-center ml-1 pa-2 rounded-xl">
         <div class="d-flex align-center  font-weight-bold ">
           Current price:
@@ -53,13 +83,43 @@
         <div class="d-flex align-center  font-weight-bold ">
           Crash probability (for each price update):
           <div class="ml-1 pa-2 red   white--text text-no-wrap rounded-pill">
-            {{ 100*probToZero }}%
+            {{ 100 * probToZero }}%
           </div>
         </div>
       </v-sheet>
 
       <v-spacer></v-spacer>
-      <v-btn @click="dialog = true">Sell</v-btn>
+      <div class="d-flex">
+        <div class="m-1" v-for="award in awards" :key="award.id">
+          <v-tooltip bottom>
+            <template v-slot:activator="{ on, attrs }">
+              <div v-bind="attrs" v-on="on">
+                <v-badge
+                  bordered
+                  overlap
+                  :color="locked(award.id) ? 'secondary' : 'success'"
+                  bottom
+                  left
+                >
+                  <template v-slot:badge>
+                    <v-icon v-if="locked(award.id)">mdi-lock</v-icon>
+                    <v-icon v-else>mdi-check-outline</v-icon>
+                  </template>
+
+                  <v-avatar size="60">
+                    <v-img
+                      :src="award.img"
+                      :class="classAward(award.id)"
+                    ></v-img>
+                  </v-avatar>
+                </v-badge>
+              </div>
+            </template>
+            <span>{{ award.brief }}</span>
+          </v-tooltip>
+        </div>
+      </div>
+      <v-btn class="mx-3" large @click="dialog = true">Sell</v-btn>
     </v-app-bar>
     <end-dialog :dialog="showEndDialog" @finishGame="finishGame"></end-dialog>
 
@@ -186,10 +246,13 @@ export default {
   },
   data: function() {
     const minx = Date.UTC(2009, 0, 1);
- 
-    const maxx = getTime(addSeconds(new Date, tickFrequency*maxPrices))
-    console.debug(maxx,'jopa')
+
+    const maxx = getTime(addSeconds(new Date(), tickFrequency * maxPrices));
+    console.debug(maxx, "jopa");
     return {
+      awardJustGiven: null,
+      isAwardGiven: false,
+      timeInTrade: 0,
       minx,
       maxx,
       showHappyFace: false,
@@ -240,18 +303,49 @@ export default {
       tweenedPrice: null,
       stockInterval: null,
       tickFrequency,
+      awardsGiven: [],
+      awards: {
+        10: {
+          id: 0,
+          img:
+            "https://cdn3.iconfinder.com/data/icons/family-member-flat-happy-family-day/512/Son-512.png",
+          name: "Bronze",
+          brief: "Bronze Award: You survived 10 seconds in trading",
+          desc:
+            "You received a Bronze Award: You survived 10 seconds in trading. Congrats!",
+        },
+        20: {
+          id: 1,
+          img:
+            "https://cdn0.iconfinder.com/data/icons/people-137/513/teenager-512.png",
+          name: "silver",
+          brief: "Silver Award: 20 seconds",
+          desc:
+            "You managed to stay for 20 seconds looking how your stock grows. aaaaand  you get a Silver Award!",
+        },
+        30: {
+          id: 2,
+          img:
+            "https://cdn0.iconfinder.com/data/icons/kameleon-free-pack-rounded/110/Boss-2-256.png",
+          name: "Gold",
+          brief: "Gold! 30 seconds!",
+          desc:
+            "Incredible! You managed to stay in trading for 30 seconds! -- you deserve GOLD status!",
+        },
+      },
       chartOptions: {
         time: { useUTC: false },
-        yAxis: {startOnTick: false,
-      endOnTick: false,},
-        xAxis: {startOnTick: false,
-      endOnTick: false,
-      showLastLabel: true,
+        yAxis: { startOnTick: false, endOnTick: false },
+        xAxis: {
+          startOnTick: false,
+          endOnTick: false,
+          showLastLabel: true,
           min: getTime(new Date()),
-          max:getTime(addSeconds(new Date, tickFrequency*maxPrices))},
+          max: getTime(addSeconds(new Date(), tickFrequency * maxPrices)),
+        },
         navigator: { enabled: false },
         rangeSelector: {
-          enabled:false,
+          enabled: false,
           inputEnabled: false,
           selected: 0,
         },
@@ -264,6 +358,9 @@ export default {
     };
   },
   computed: {
+    awardTimes() {
+      return _.keys(this.awards);
+    },
     lastMsg() {
       return _.last(this.messages);
     },
@@ -277,6 +374,20 @@ export default {
     },
   },
   watch: {
+    timeInTrade(t) {
+      const that = this;
+      _.forEach(this.awardTimes, function(i) {
+        if (t > i && !that.awardsGiven.includes(that.awards[i].id)) {
+          that.isAwardGiven = true;
+          that.awardJustGiven = that.awards[i];
+          that.awardsGiven.push(that.awards[i].id);
+          setTimeout(() => {
+            that.isAwardGiven = false;
+            that.awardJustGiven = null;
+          }, 3000);
+        }
+      });
+    },
     dialog(v) {
       this.onPause = v;
     },
@@ -289,23 +400,27 @@ export default {
     prices(v) {
       if (v.length == 5) {
         this.messages.push(
-          `Diamond hands 💎🤲: \nHolding strong for ${v.length*this.tickFrequency} seconds already!`
+          `Diamond hands 💎🤲: \nHolding strong for ${v.length *
+            this.tickFrequency} seconds already!`
         );
         this.messages.push(gif1);
       }
       if (v.length == 10) {
         this.messages.push(
-          `To the moon 🚀: \nStock is going up for ${v.length*this.tickFrequency} seconds.`
+          `To the moon 🚀: \nStock is going up for ${v.length *
+            this.tickFrequency} seconds.`
         );
       }
       if (v.length == 15) {
         this.messages.push(
-          `Gimme the tendies! 🍗: \nCash piling up for ${v.length*this.tickFrequency} seconds now.`
+          `Gimme the tendies! 🍗: \nCash piling up for ${v.length *
+            this.tickFrequency} seconds now.`
         );
       }
       if (v.length == 20) {
         this.messages.push(
-          `Almost there 🚀🚀🚀🚀: \nImpressive run for ${v.length*this.tickFrequency} seconds.`
+          `Almost there 🚀🚀🚀🚀: \nImpressive run for ${v.length *
+            this.tickFrequency} seconds.`
         );
       }
       if (v.length >= maxPrices) {
@@ -373,13 +488,14 @@ export default {
     this.messages.push("Hello! Ready to invest? 📈 ");
     this.$nextTick(() => {
       this.$refs.listend.scrollIntoView({ behavior: "smooth" });
-      
+
       this.$refs.priceGraph.chart.setSize(null, window.innerHeight - 100);
       // this.$refs.priceGraph.chart.reflow();
     });
- 
+
     this.stockInterval = setInterval(async () => {
       if (!this.onPause) {
+        this.timeInTrade += this.tickFrequency;
         const addendum = _.random(0, 2);
         this.currentPrice += addendum;
         const r = _.random(0, 1, true);
@@ -389,16 +505,22 @@ export default {
         }
         this.addMessage(this.currentPrice, addendum);
         this.prices.push(this.currentPrice);
-        
+
         this.chartOptions.series[0].data.push([
           getTime(new Date()),
           this.currentPrice,
         ]);
-        
       }
     }, this.tickFrequency * 1000);
   },
   methods: {
+    locked(award_id) {
+      const awardGiven = this.awardsGiven.includes(award_id);
+      return !awardGiven;
+    },
+    classAward(award_id) {
+      return this.locked(award_id) ? "gray" : "";
+    },
     finishGame() {
       console.log("game finished");
     },
@@ -511,5 +633,10 @@ export default {
   z-index: 1000;
   bottom: 10px;
   right: 10px;
+}
+.gray {
+  filter: gray; /* IE6-9 */
+  -webkit-filter: grayscale(1); /* Google Chrome, Safari 6+ & Opera 15+ */
+  filter: grayscale(1); /* Microsoft Edge and Firefox 35+ */
 }
 </style>
