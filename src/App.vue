@@ -211,7 +211,7 @@ import _ from "lodash";
 import add from "date-fns/fp/add/index.js";
 
 const maxPrices = 25;
-const startingPrice = 100;
+const startingPrice = 10;
 const tickFrequency = 3;
 
 const formatDown = {
@@ -305,13 +305,13 @@ export default {
       tickFrequency,
       awardsGiven: [],
       awards: {
-        5: {
+        10: {
           id: 0,
           img:
             "https://cdn0.iconfinder.com/data/icons/business-finance-vol-2-56/512/stock_trader_trade_exchange-256.png",
           name: "Level I",
           brief: "Level I Badge: Trading intern",
-          desc: ["a", "b", "c", "d", "e"],
+          desc: ["Level up! Doing well 👍", "Way to go -- stay strong! 💎🤲", "You are definitely going places! 🙌"],
         },
         25: {
           id: 1,
@@ -319,7 +319,8 @@ export default {
             "https://cdn2.iconfinder.com/data/icons/financial-strategy-20/496/trader-bitcoin-cryptocurrency-investment-businessman-1024.png",
           name: "Level II",
           brief: "Level II Badge: Trading manager",
-          desc: ["Level II: Trading manager (25 seconds)"],
+          desc: ["Level up again! You belong on the trading floor 🤑", "Nerves of steel: stocks are going strong! 📈",
+                 "Bulls 🐂 are in the arena. Good job!", "Have you ever thought of opening your own trading firm?"],
         },
         50: {
           id: 2,
@@ -327,7 +328,7 @@ export default {
             "https://cdn1.iconfinder.com/data/icons/office-and-internet-3/49/217-512.png",
           name: "Level III",
           brief: "Level III Badge: Money Boss",
-          desc: ["Level III: You are the money-maker! (50 seconds)"],
+          desc: ["You are the money-maker! 💰", "Diamond hands 💎🤲 Impressive run!", "To the moon! 🚀 🚀 🚀" ],
         },
       },
       chartOptions: {
@@ -484,7 +485,7 @@ export default {
   },
   async created() {},
   async mounted() {
-    this.messages.push("Hello! Ready to invest? 📈 ");
+    this.messages.push("Hello! Ready to invest with me? 📈 ");
     this.$nextTick(() => {
       this.$refs.listend.scrollIntoView({ behavior: "smooth" });
 
