@@ -136,6 +136,10 @@
         <v-card-text class="overflow-y-auto" style="margin-bottom:50px">
           <v-list>
             <v-list-item-group active-class="border" color="indigo" class=" ">
+               <transition-group
+      enter-active-class="animate__animated animate__fadeInRight animate__slow"
+      leave-active-class="animate__animated animate__fadeOutTopRight animate__slow"
+    >
               <v-list-item
                 class="m-3  "
                 v-for="(item, i) in messages"
@@ -151,11 +155,12 @@
                   <v-list-item-title
                     class="titlestyle"
                     style=" white-space:pre-wrap;"
+                    v-html="item"
                   >
-                    {{ item }}
                   </v-list-item-title>
                 </v-list-item-content>
               </v-list-item>
+               </transition-group>
             </v-list-item-group>
           </v-list>
           <div id="listend" ref="listend">&nbsp</div>
@@ -305,7 +310,11 @@ export default {
             "https://cdn0.iconfinder.com/data/icons/business-finance-vol-2-56/512/stock_trader_trade_exchange-256.png",
           name: "Level I",
           brief: "Level I Badge: Trading intern",
-          desc: ["Level up! Doing well 👍", "Way to go -- stay strong! 💎🤲", "You are definitely going places! 🙌"],
+          desc: [
+            "Level up! Doing well 👍",
+            "Way to go -- stay strong! 💎🤲",
+            "You are definitely going places! 🙌",
+          ],
         },
         25: {
           id: 1,
@@ -313,8 +322,12 @@ export default {
             "https://cdn2.iconfinder.com/data/icons/financial-strategy-20/496/trader-bitcoin-cryptocurrency-investment-businessman-1024.png",
           name: "Level II",
           brief: "Level II Badge: Trading manager",
-          desc: ["Level up again! You belong on the trading floor 🤑", "Nerves of steel: stocks are going strong! 📈",
-                 "Bulls 🐂 are in the arena. Good job!", "Have you ever thought of opening your own trading firm?"],
+          desc: [
+            "Level up again! You belong on the trading floor 🤑",
+            "Nerves of steel: stocks are going strong! 📈",
+            "Bulls 🐂 are in the arena. Good job!",
+            "Have you ever thought of opening your own trading firm?",
+          ],
         },
         50: {
           id: 2,
@@ -322,7 +335,11 @@ export default {
             "https://cdn1.iconfinder.com/data/icons/office-and-internet-3/49/217-512.png",
           name: "Level III",
           brief: "Level III Badge: Money Boss",
-          desc: ["You are the money-maker! 💰", "Diamond hands 💎🤲 Impressive run!", "To the moon! 🚀 🚀 🚀" ],
+          desc: [
+            "You are the money-maker! 💰",
+            "Diamond hands 💎🤲 Impressive run!",
+            "To the moon! 🚀 🚀 🚀",
+          ],
         },
       },
       chartOptions: {
@@ -398,8 +415,8 @@ export default {
           `Diamond hands 💎🤲: \nHolding strong for ${v.length *
             this.tickFrequency} seconds already!`
         );
-
-        this.messages.push(gif1);
+        const gif = "https://i.gifer.com/7VzX.gif";
+        this.postGif(gif);
       }
       if (v.length == 10) {
         this.say(
@@ -482,8 +499,9 @@ export default {
   async created() {},
 
   async mounted() {
-
     this.say("Hello! Ready to invest? 📈 ");
+    const gif = "https://i.gifer.com/18Pe.gif";
+        this.postGif(gif);
 
     this.$nextTick(() => {
       this.$refs.listend.scrollIntoView({ behavior: "smooth" });
@@ -513,6 +531,10 @@ export default {
     }, this.tickFrequency * 1000);
   },
   methods: {
+    postGif(url) {
+      const img = `<img src="${url}" width="180px"/>`;
+      this.messages.push(img);
+    },
     say(msg) {
       this.currentMessage = msg;
       setTimeout(() => {
