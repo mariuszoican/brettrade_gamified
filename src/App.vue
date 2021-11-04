@@ -23,9 +23,6 @@
             <v-card-title class="d-flex align-center justify-center text-center"
               ><div>{{ awardJustGiven.name }}</div></v-card-title
             >
-            <v-card-text>
-              {{ awardJustGiven.desc }}
-            </v-card-text>
           </v-card>
         </div>
       </v-overlay>
@@ -377,6 +374,7 @@ export default {
           awardToGive.desc = _.sample(that.awards[i].desc);
           that.awardJustGiven = that.awards[i];
           that.awardsGiven.push(that.awards[i].id);
+          that.say(that.awardJustGiven.desc);
           setTimeout(() => {
             that.isAwardGiven = false;
             that.awardJustGiven = null;
