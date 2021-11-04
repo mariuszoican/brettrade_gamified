@@ -246,10 +246,10 @@ export default {
   },
   data: function() {
     const minx = Date.UTC(2009, 0, 1);
-
     const maxx = getTime(addSeconds(new Date(), tickFrequency * maxPrices));
-    console.debug(maxx, "jopa");
+
     return {
+      currentMessage:null,
       awardJustGiven: null,
       isAwardGiven: false,
       timeInTrade: 0,
