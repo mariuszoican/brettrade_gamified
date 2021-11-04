@@ -23,6 +23,9 @@
             <v-card-title class="d-flex align-center justify-center text-center"
               ><div>{{ awardJustGiven.name }}</div></v-card-title
             >
+            <v-card-text>
+              {{ awardJustGiven.desc}}
+            </v-card-text>
           </v-card>
         </div>
       </v-overlay>
@@ -297,7 +300,7 @@ export default {
       endTime: null,
       timeSpent: null,
       reset: false,
-      messageMoveDelay: 3000,
+      messageMoveDelay: 5000,
       dialog: false,
       tweenedPrice: null,
       stockInterval: null,
@@ -392,7 +395,7 @@ export default {
           awardToGive.desc = _.sample(that.awards[i].desc);
           that.awardJustGiven = that.awards[i];
           that.awardsGiven.push(that.awards[i].id);
-          that.say(that.awardJustGiven.desc);
+          // that.say(that.awardJustGiven.desc);
           setTimeout(() => {
             that.isAwardGiven = false;
             that.awardJustGiven = null;
@@ -410,74 +413,120 @@ export default {
       }, 3000);
     },
     prices(v) {
+
+      if (v.length == 3) {
+
+        const gif = "https://i.gifer.com/7VzX.gif";
+        this.postGif(gif);
+
+      }
+
       if (v.length == 5) {
         this.say(
           `Diamond hands 💎🤲: \nHolding strong for ${v.length *
             this.tickFrequency} seconds already!`
         );
-        const gif = "https://i.gifer.com/7VzX.gif";
-        this.postGif(gif);
       }
+
+
+      if (v.length == 8) {
+
+        const gif = "https://c.tenor.com/puvU5YS9r4cAAAAC/uncle-scrooge-mcduck-money.gif";
+        this.postGif(gif);
+
+      }
+
+
       if (v.length == 10) {
         this.say(
           `To the moon 🚀: \nStock is going up for ${v.length *
             this.tickFrequency} seconds.`
         );
       }
+
+
+      if (v.length == 13) {
+
+        const gif = "https://c.tenor.com/QfVo3Mh29hUAAAAC/we-bare-bears-money.gif";
+        this.postGif(gif);
+
+      }
+
+
       if (v.length == 15) {
         this.say(
           `Gimme the tendies! 🍗: \nCash piling up for ${v.length *
             this.tickFrequency} seconds now.`
         );
       }
+
+      if (v.length == 18) {
+
+        const gif = "https://c.tenor.com/0-e7d7ct3G0AAAAC/shut-up-and-take-my-money-futurama.gif";
+        this.postGif(gif);
+
+      }
+
+
       if (v.length == 20) {
         this.say(
           `Almost there 🚀🚀🚀🚀: \nImpressive run for ${v.length *
             this.tickFrequency} seconds.`
         );
       }
+
+
+      if (v.length == 22) {
+        const gif = "https://slack-imgs.com/?c=1&o1=ro&url=https%3A%2F%2Ftenor.com%2Fview%2Fbacking-you-get-yours-danny-devito-danny-devito-gif-13052176";
+        this.postGif(gif);
+      }
+
+
+
+
+
       if (v.length >= maxPrices) {
         this.submittable = true;
       }
     },
-    zeroCounter(v) {
-      if (v === this.sensitivity) {
-        this.say("Ouch! Why it takes so long to grow!!!");
-        this.zeroCounter = 0;
-      }
-    },
-    grownCounter(v) {
-      if (v === this.sensitivity) {
-        const msg = `Wow! ${
-          numToStr[this.sensitivity]
-        } straight price growths in a row! To the moon!`;
-        this.say(msg);
-        this.snackbartext = `Wow! ${
-          numToStr[this.sensitivity]
-        } straight price growths in a row! To the moon!`;
-        this.snackbar = true;
-        setTimeout(() => {
-          this.snackbar = false;
-        }, 3000);
-        this.grownCounter = 0;
-      }
-    },
-    TwoTwosCounter(v) {
-      if (v === this.sensitivity2) {
-        const msg = `That's insane! ${
-          numToStr[this.sensitivity2]
-        } 2s in a row! You gonna be rich!`;
-        this.snackbartext = msg;
-        this.particle_type = "custom";
-        this.snackbar = true;
-        setTimeout(() => {
-          this.snackbar = false;
-          this.particle_type = "fountain";
-        }, 3000);
-        this.say(msg);
-        this.TwoTwosCounter = 0;
-      }
-    },
+    // zeroCounter(v) {
+    //   if (v === this.sensitivity) {
+    //     this.say("Ouch! Why it takes so long to grow!!!");
+    //     this.zeroCounter = 0;
+    //   }
+    // },
+    // grownCounter(v) {
+    //   if (v === this.sensitivity) {
+    //     const msg = `Wow! ${
+    //       numToStr[this.sensitivity]
+    //     } straight price growths in a row! To the moon!`;
+    //     this.say(msg);
+    //     this.snackbartext = `Wow! ${
+    //       numToStr[this.sensitivity]
+    //     } straight price growths in a row! To the moon!`;
+    //     this.snackbar = true;
+    //     setTimeout(() => {
+    //       this.snackbar = false;
+    //     }, 3000);
+    //     this.grownCounter = 0;
+    //   }
+    // },
+    // TwoTwosCounter(v) {
+    //   if (v === this.sensitivity2) {
+    //     const msg = `That's insane! ${
+    //       numToStr[this.sensitivity2]
+    //     } 2s in a row! You gonna be rich!`;
+    //     this.snackbartext = msg;
+    //     this.particle_type = "custom";
+    //     this.snackbar = true;
+    //     setTimeout(() => {
+    //       this.snackbar = false;
+    //       this.particle_type = "fountain";
+    //     }, 3000);
+    //     this.say(msg);
+    //     this.TwoTwosCounter = 0;
+    //   }
+    // },
     async submittable(val) {
       if (val) {
         await this.sendMessage({ name: "Trade_ends" });
@@ -499,9 +548,9 @@ export default {
   async created() {},
 
   async mounted() {
-    this.say("Hello! Ready to invest? 📈 ");
-    const gif = "https://i.gifer.com/18Pe.gif";
-        this.postGif(gif);
+    this.say("Hello! Ready to invest with me? 📈 ");
+    // const gif = "https://i.gifer.com/18Pe.gif";
+    //    this.postGif(gif);
 
     this.$nextTick(() => {
       this.$refs.listend.scrollIntoView({ behavior: "smooth" });
