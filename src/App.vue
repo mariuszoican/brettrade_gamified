@@ -308,29 +308,29 @@ export default {
         10: {
           id: 0,
           img:
-            "https://cdn3.iconfinder.com/data/icons/family-member-flat-happy-family-day/512/Son-512.png",
-          name: "Bronze",
-          brief: "Bronze Award: You survived 10 seconds in trading",
+            "https://cdn0.iconfinder.com/data/icons/business-finance-vol-2-56/512/stock_trader_trade_exchange-256.png",
+          name: "Level I",
+          brief: "Level I Badge: Trading intern",
           desc:
-            "You received a Bronze Award: You survived 10 seconds in trading. Congrats!",
+            "Level I: Trading intern (10 seconds)",
         },
-        20: {
+        25: {
           id: 1,
           img:
-            "https://cdn0.iconfinder.com/data/icons/people-137/513/teenager-512.png",
-          name: "silver",
-          brief: "Silver Award: 20 seconds",
+            "https://cdn2.iconfinder.com/data/icons/financial-strategy-20/496/trader-bitcoin-cryptocurrency-investment-businessman-1024.png",
+          name: "Level II",
+          brief: "Level II Badge: Trading manager",
           desc:
-            "You managed to stay for 20 seconds looking how your stock grows. aaaaand  you get a Silver Award!",
+            "Level II: Trading manager (25 seconds)",
         },
-        30: {
+        50: {
           id: 2,
           img:
-            "https://cdn0.iconfinder.com/data/icons/kameleon-free-pack-rounded/110/Boss-2-256.png",
-          name: "Gold",
-          brief: "Gold! 30 seconds!",
+            "https://cdn1.iconfinder.com/data/icons/office-and-internet-3/49/217-512.png",
+          name: "Level III",
+          brief: "Level III Badge: Money Boss",
           desc:
-            "Incredible! You managed to stay in trading for 30 seconds! -- you deserve GOLD status!",
+            "Level III: You are the money-maker! (50 seconds)",
         },
       },
       chartOptions: {
