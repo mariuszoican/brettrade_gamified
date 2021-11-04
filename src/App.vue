@@ -305,14 +305,13 @@ export default {
       tickFrequency,
       awardsGiven: [],
       awards: {
-        10: {
+        5: {
           id: 0,
           img:
             "https://cdn0.iconfinder.com/data/icons/business-finance-vol-2-56/512/stock_trader_trade_exchange-256.png",
           name: "Level I",
           brief: "Level I Badge: Trading intern",
-          desc:
-            "Level I: Trading intern (10 seconds)",
+          desc: ["a", "b", "c", "d", "e"],
         },
         25: {
           id: 1,
@@ -320,8 +319,7 @@ export default {
             "https://cdn2.iconfinder.com/data/icons/financial-strategy-20/496/trader-bitcoin-cryptocurrency-investment-businessman-1024.png",
           name: "Level II",
           brief: "Level II Badge: Trading manager",
-          desc:
-            "Level II: Trading manager (25 seconds)",
+          desc: ["Level II: Trading manager (25 seconds)"],
         },
         50: {
           id: 2,
@@ -329,8 +327,7 @@ export default {
             "https://cdn1.iconfinder.com/data/icons/office-and-internet-3/49/217-512.png",
           name: "Level III",
           brief: "Level III Badge: Money Boss",
-          desc:
-            "Level III: You are the money-maker! (50 seconds)",
+          desc: ["Level III: You are the money-maker! (50 seconds)"],
         },
       },
       chartOptions: {
@@ -379,6 +376,8 @@ export default {
       _.forEach(this.awardTimes, function(i) {
         if (t > i && !that.awardsGiven.includes(that.awards[i].id)) {
           that.isAwardGiven = true;
+          const awardToGive = that.awards[i];
+          awardToGive.desc = _.sample(that.awards[i].desc);
           that.awardJustGiven = that.awards[i];
           that.awardsGiven.push(that.awards[i].id);
           setTimeout(() => {
@@ -524,6 +523,7 @@ export default {
     finishGame() {
       console.log("game finished");
     },
+
     addMessage(price, addendum) {
       // bad structure. let's think about it later
       if (price === 0) {
