@@ -23,9 +23,6 @@
             <v-card-title class="d-flex align-center justify-center text-center"
               ><div>{{ awardJustGiven.name }}</div></v-card-title
             >
-            <v-card-text>
-              {{ awardJustGiven.desc }}
-            </v-card-text>
           </v-card>
         </div>
       </v-overlay>
@@ -47,7 +44,8 @@
         enter-active-class="animate__animated animate__bounceIn"
         appear
       >
-        <speech-bubble :text="lastMsg" v-if="showLastMsg"> </speech-bubble>
+        <speech-bubble :text="currentMessage" v-if="currentMessage">
+        </speech-bubble>
       </transition>
       <img
         src="https://www.picgifs.com/graphics/s/scrooge-mcduck/graphics-scrooge-mcduck-940725.gif"
@@ -147,19 +145,14 @@
                 dense
               >
                 <v-list-item-content
-                  class="message pr-3 "
+                  class="message mb-3 pr-3 "
                   v-breathing-colors="sample"
                 >
                   <v-list-item-title
                     class="titlestyle"
                     style=" white-space:pre-wrap;"
                   >
-                    <typical
-                      class="typicalWrapper"
-                      :steps="[`${item}`, 1000]"
-                      :loop="1"
-                      :wrapper="'div'"
-                    ></typical>
+                    {{ item }}
                   </v-list-item-title>
                 </v-list-item-content>
               </v-list-item>
@@ -199,7 +192,7 @@
 <script>
 /* eslint-disable */
 import icon from "./assets/icon.js";
-import typical from "vue-typical";
+
 import { ParticlesBg } from "particles-bg-vue";
 import SpeechBubble from "./components/SpeechBubble.vue";
 import EndDialog from "./components/EndDialog";
@@ -240,16 +233,16 @@ export default {
     highcharts: Chart,
     ConfirmDialog,
     EndDialog,
-    typical,
+
     ParticlesBg,
     SpeechBubble,
   },
   data: function() {
     const minx = Date.UTC(2009, 0, 1);
-
     const maxx = getTime(addSeconds(new Date(), tickFrequency * maxPrices));
-    console.debug(maxx, "jopa");
+
     return {
+      currentMessage: null,
       awardJustGiven: null,
       isAwardGiven: false,
       timeInTrade: 0,
@@ -299,6 +292,7 @@ export default {
       endTime: null,
       timeSpent: null,
       reset: false,
+      messageMoveDelay: 3000,
       dialog: false,
       tweenedPrice: null,
       stockInterval: null,
@@ -381,6 +375,7 @@ export default {
           awardToGive.desc = _.sample(that.awards[i].desc);
           that.awardJustGiven = that.awards[i];
           that.awardsGiven.push(that.awards[i].id);
+          that.say(that.awardJustGiven.desc);
           setTimeout(() => {
             that.isAwardGiven = false;
             that.awardJustGiven = null;
@@ -399,26 +394,27 @@ export default {
     },
     prices(v) {
       if (v.length == 5) {
-        this.messages.push(
+        this.say(
           `Diamond hands 💎🤲: \nHolding strong for ${v.length *
             this.tickFrequency} seconds already!`
         );
+
         this.messages.push(gif1);
       }
       if (v.length == 10) {
-        this.messages.push(
+        this.say(
           `To the moon 🚀: \nStock is going up for ${v.length *
             this.tickFrequency} seconds.`
         );
       }
       if (v.length == 15) {
-        this.messages.push(
+        this.say(
           `Gimme the tendies! 🍗: \nCash piling up for ${v.length *
             this.tickFrequency} seconds now.`
         );
       }
       if (v.length == 20) {
-        this.messages.push(
+        this.say(
           `Almost there 🚀🚀🚀🚀: \nImpressive run for ${v.length *
             this.tickFrequency} seconds.`
         );
@@ -429,7 +425,7 @@ export default {
     },
     zeroCounter(v) {
       if (v === this.sensitivity) {
-        this.messages.push("Ouch! Why it takes so long to grow!!!");
+        this.say("Ouch! Why it takes so long to grow!!!");
         this.zeroCounter = 0;
       }
     },
@@ -438,7 +434,7 @@ export default {
         const msg = `Wow! ${
           numToStr[this.sensitivity]
         } straight price growths in a row! To the moon!`;
-        this.messages.push(msg);
+        this.say(msg);
         this.snackbartext = `Wow! ${
           numToStr[this.sensitivity]
         } straight price growths in a row! To the moon!`;
@@ -461,7 +457,7 @@ export default {
           this.snackbar = false;
           this.particle_type = "fountain";
         }, 3000);
-        this.messages.push(msg);
+        this.say(msg);
         this.TwoTwosCounter = 0;
       }
     },
@@ -484,8 +480,11 @@ export default {
     },
   },
   async created() {},
+
   async mounted() {
-    this.messages.push("Hello! Ready to invest with me? 📈 ");
+
+    this.say("Hello! Ready to invest? 📈 ");
+
     this.$nextTick(() => {
       this.$refs.listend.scrollIntoView({ behavior: "smooth" });
 
@@ -514,6 +513,13 @@ export default {
     }, this.tickFrequency * 1000);
   },
   methods: {
+    say(msg) {
+      this.currentMessage = msg;
+      setTimeout(() => {
+        this.currentMessage = null;
+        this.messages.push(msg);
+      }, this.messageMoveDelay);
+    },
     locked(award_id) {
       const awardGiven = this.awardsGiven.includes(award_id);
       return !awardGiven;
@@ -529,7 +535,7 @@ export default {
       // bad structure. let's think about it later
       if (price === 0) {
         const msg = `Market crashed! 😢`;
-        this.messages.push(msg);
+        this.say(msg);
       }
       if (addendum === 0 && !this.onPause) {
         this.zeroCounter++;
